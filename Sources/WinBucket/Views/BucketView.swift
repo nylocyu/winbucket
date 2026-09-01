@@ -5,11 +5,45 @@ import UniformTypeIdentifiers
 struct BucketView: View {
     enum Tab { case active, trash }
 
+    enum TimeRange: String, CaseIterable, Identifiable {
+        case all = "Alle"
+        case last7Days = "Letzte 7 Tage"
+        case lastMonth = "Letzter Monat"
+        case lastQuarter = "Letztes Quartal"
+        case thisYear = "Dieses Jahr"
+
+        var id: String { rawValue }
+
+        func contains(_ date: Date, now: Date = Date()) -> Bool {
+            let cal = Calendar.current
+            switch self {
+            case .all: return true
+            case .last7Days: return date >= cal.date(byAdding: .day, value: -7, to: now)!
+            case .lastMonth: return date >= cal.date(byAdding: .month, value: -1, to: now)!
+            case .lastQuarter: return date >= cal.date(byAdding: .month, value: -3, to: now)!
+            case .thisYear: return cal.component(.year, from: date) == cal.component(.year, from: now)
+            }
+        }
+    }
+
     @ObservedObject var store: WinStore
+    @AppStorage(OnboardingView.hasSeenOnboardingKey) private var hasSeenOnboarding = false
     @State private var note: String = ""
     @State private var link: String = ""
     @State private var pendingFileURL: URL?
     @State private var selectedTab: Tab = .active
+    @State private var searchText: String = ""
+    @State private var timeRange: TimeRange = .all
+    @FocusState private var noteFieldFocused: Bool
+
+    private var filteredWins: [Win] {
+        store.wins.filter { win in
+            guard timeRange.contains(win.timestamp) else { return false }
+            guard !searchText.isEmpty else { return true }
+            return win.note.localizedCaseInsensitiveContains(searchText)
+                || (win.originalFilename?.localizedCaseInsensitiveContains(searchText) ?? false)
+        }
+    }
 
     private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -25,6 +59,14 @@ struct BucketView: View {
     }()
 
     var body: some View {
+        if hasSeenOnboarding {
+            mainContent
+        } else {
+            OnboardingView { hasSeenOnboarding = true }
+        }
+    }
+
+    private var mainContent: some View {
         VStack(spacing: 12) {
             HStack {
                 Text("Win Bucket")
@@ -46,6 +88,7 @@ struct BucketView: View {
                 TextField("Notiz: was war's, warum wichtig?", text: $note, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                     .lineLimit(2...4)
+                    .focused($noteFieldFocused)
 
                 TextField("Link (optional)", text: $link)
                     .textFieldStyle(.roundedBorder)
@@ -64,19 +107,53 @@ struct BucketView: View {
                 }
             }
 
+            if selectedTab == .active && !store.wins.isEmpty {
+                HStack(spacing: 8) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                        TextField("Suchen", text: $searchText)
+                            .textFieldStyle(.plain)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(RoundedRectangle(cornerRadius: 6).fill(Color.secondary.opacity(0.08)))
+
+                    Picker("", selection: $timeRange) {
+                        ForEach(TimeRange.allCases) { Text($0.rawValue).tag($0) }
+                    }
+                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    .fixedSize()
+                }
+                .font(.caption)
+            }
+
             Divider()
 
             switch selectedTab {
             case .active:
                 if store.wins.isEmpty {
-                    Text("Noch keine Wins gesammelt.")
+                    Button {
+                        noteFieldFocused = true
+                    } label: {
+                        Text("Noch keine Wins – zieh eine Datei aufs Icon oder klick hier, um manuell einen Eintrag zu erstellen.")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 12)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if filteredWins.isEmpty {
+                    Text("Keine Wins gefunden")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 8) {
-                            ForEach(store.wins) { win in
+                            ForEach(filteredWins) { win in
                                 WinRowView(
                                     win: win,
                                     dateFormatter: Self.dateFormatter,
