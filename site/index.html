@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Win Bucket — collect the proof of your work</title>
+<meta name="description" content="A macOS menu bar app that collects praise, screenshots and finished projects all year, then hands you one document for your next review. Everything stays on your Mac.">
+<meta name="theme-color" content="#faf9f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121110" media="(prefers-color-scheme: dark)">
+
+<meta property="og:title" content="Win Bucket — collect the proof of your work">
+<meta property="og:description" content="A macOS menu bar app that collects praise, screenshots and finished projects all year, then hands you one document for your next review.">
+<meta property="og:type" content="website">
+<!-- og:image still needs to be created at site/assets/og.png -->
+<meta property="og:image" content="assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Win Bucket — collect the proof of your work">
+<meta name="twitter:description" content="A macOS menu bar app that collects praise, screenshots and finished projects all year, then hands you one document for your next review.">
+<meta name="twitter:image" content="assets/og.png">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M9 10a7 5 0 0 1 14 0' fill='none' stroke='%23b4622b' stroke-width='2.2' stroke-linecap='round'/%3E%3Cpath d='M6 10h20l-2.2 16.2A2 2 0 0 1 21.8 28H10.2a2 2 0 0 1-2-1.8Z' fill='%23b4622b'/%3E%3C/svg%3E">
+
+<style>
+:root{
+  --bg:#faf9f7;
+  --bg-raised:#ffffff;
+  --text:#141414;
+  --muted:#6b6b6b;
+  --accent:#b4622b;
+  --accent-text:#fff8f2;
+  --border:rgba(20,20,20,0.12);
+  --shadow:0 24px 48px -28px rgba(20,20,20,0.35);
+  --focus:#2c4a7c;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#121110;
+    --bg-raised:#1c1a17;
+    --text:#f3f1ec;
+    --muted:#a19a8e;
+    --accent:#d98a4f;
+    --accent-text:#1b1108;
+    --border:rgba(255,255,255,0.14);
+    --shadow:0 24px 48px -28px rgba(0,0,0,0.6);
+    --focus:#8fb3e6;
+  }
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,system-ui,sans-serif;
+  font-size:17px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:4px}
+
+.wrap{max-width:720px;margin:0 auto;padding:0 24px}
+.wrap-wide{max-width:980px;margin:0 auto;padding:0 24px}
+
+header.site-nav{
+  position:sticky;top:0;z-index:10;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  max-width:980px;margin:0 auto;padding:16px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.wordmark{
+  display:flex;align-items:center;gap:8px;
+  font-weight:700;font-size:1.05rem;text-decoration:none;letter-spacing:-0.01em;
+}
+.wordmark svg{width:22px;height:22px}
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none;margin:0;padding:0}
+.nav-links a{text-decoration:none;color:var(--text);font-size:0.95rem}
+.nav-links a:hover{color:var(--accent)}
+.nav-links li:first-child,.nav-links li:nth-child(2){display:none}
+@media (min-width:640px){
+  .nav-links li:first-child,.nav-links li:nth-child(2){display:list-item}
+}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:44px;padding:10px 20px;
+  border-radius:10px;border:1px solid transparent;
+  font-size:0.95rem;font-weight:600;text-decoration:none;
+  cursor:pointer;
+}
+.btn-primary{background:var(--accent);color:var(--accent-text)}
+.btn-primary:hover{filter:brightness(1.08)}
+.btn-secondary{background:transparent;color:var(--text);border-color:var(--border)}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.btn-small{min-height:36px;padding:8px 14px;font-size:0.9rem}
+
+main{display:block}
+
+.reveal{opacity:1;transform:none}
+@media (prefers-reduced-motion: no-preference){
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .5s ease, transform .5s ease}
+  .reveal.is-visible{opacity:1;transform:none}
+}
+
+.hero{padding:64px 0 32px}
+.hero-grid{display:grid;gap:40px;align-items:center}
+@media (min-width:900px){
+  .hero-grid{grid-template-columns:1.1fr 0.9fr}
+}
+.hero h1{
+  font-size:clamp(2.5rem,5vw,3.5rem);
+  line-height:1.08;letter-spacing:-0.02em;font-weight:700;margin:0 0 20px;
+}
+.hero p.lede{font-size:1.15rem;color:var(--muted);margin:0 0 28px}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.micro{color:var(--muted);font-size:0.88rem;margin:0}
+
+.popover-mock{
+  width:100%;max-width:320px;margin:0 auto;
+  background:var(--bg-raised);
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  padding:16px;
+}
+.pm-titlebar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.pm-title{display:flex;align-items:center;gap:6px;font-weight:600;font-size:0.95rem}
+.pm-title svg{width:16px;height:16px;color:var(--accent)}
+.pm-export{
+  font-size:0.72rem;font-weight:600;color:var(--accent);
+  border:1px solid var(--border);border-radius:6px;padding:4px 8px;
+}
+.pm-drop{
+  border:1.5px dashed var(--border);border-radius:10px;
+  padding:14px;text-align:center;color:var(--muted);
+  font-size:0.78rem;margin-bottom:10px;
+}
+.pm-drop svg{width:18px;height:18px;display:block;margin:0 auto 6px;color:var(--accent)}
+.pm-note{
+  border:1px solid var(--border);border-radius:8px;
+  padding:8px 10px;font-size:0.78rem;color:var(--muted);margin-bottom:12px;
+}
+.pm-cards{display:flex;flex-direction:column;gap:8px}
+.pm-card{border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+.pm-card .pm-date{font-size:0.68rem;color:var(--muted);margin-bottom:2px}
+.pm-card .pm-text{font-size:0.8rem;margin-bottom:4px}
+.pm-card .pm-file{display:flex;align-items:center;gap:4px;font-size:0.68rem;color:var(--muted)}
+.pm-card .pm-file svg{width:10px;height:10px}
+
+section{padding:56px 0}
+h2{font-size:clamp(1.5rem,3vw,1.9rem);letter-spacing:-0.01em;margin:0 0 20px}
+
+.problem p{font-size:1.05rem;color:var(--muted);max-width:60ch}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:28px}
+@media (min-width:700px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{display:flex;flex-direction:column;gap:10px}
+.step .step-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--bg-raised);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;color:var(--accent);
+}
+.step .step-icon svg{width:20px;height:20px}
+.step h3{margin:0;font-size:1.05rem}
+.step p{margin:0;color:var(--muted);font-size:0.98rem}
+
+.features{padding:56px 0}
+.feature-grid{display:grid;gap:20px}
+@media (min-width:700px){.feature-grid{grid-template-columns:repeat(2,1fr)}}
+.feature-card{
+  border:1px solid var(--border);border-radius:12px;padding:20px;background:var(--bg-raised);
+}
+.feature-card h3{margin:0 0 8px;font-size:1.02rem}
+.feature-card p{margin:0;color:var(--muted);font-size:0.95rem}
+
+.privacy{background:var(--bg-raised);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.privacy ul{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.privacy li{display:flex;gap:12px;align-items:flex-start}
+.privacy li svg{flex-shrink:0;width:18px;height:18px;margin-top:3px;color:var(--accent)}
+.privacy li p{margin:0;color:var(--text)}
+
+.requirements ul{padding-left:1.2em;color:var(--muted);margin:0 0 20px}
+.requirements li{margin-bottom:6px}
+.requirements .note{
+  background:var(--bg-raised);border:1px solid var(--border);border-radius:10px;
+  padding:14px 16px;font-size:0.95rem;margin-bottom:20px;
+}
+pre{
+  background:var(--bg-raised);border:1px solid var(--border);border-radius:10px;
+  padding:16px;overflow-x:auto;font-size:0.85rem;line-height:1.5;
+}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+.faq details{
+  border-bottom:1px solid var(--border);padding:16px 0;
+}
+.faq summary{
+  cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px;
+  min-height:44px;align-items:center;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--accent);font-weight:400;font-size:1.2rem}
+.faq details[open] summary::after{content:"–"}
+.faq p{margin:10px 0 0;color:var(--muted)}
+
+.final-cta{text-align:center;padding:64px 0}
+.final-cta p{color:var(--muted);margin-top:14px}
+
+footer{border-top:1px solid var(--border);padding:32px 0;color:var(--muted);font-size:0.9rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+footer a{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a class="wordmark" href="#top">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 10a7 5 0 0 1 14 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="color:var(--accent)"/><path d="M6 10h20l-2.2 16.2A2 2 0 0 1 21.8 28H10.2a2 2 0 0 1-2-1.8Z" fill="var(--accent)"/></svg>
+      Win Bucket
+    </a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#privacy">Privacy</a></li>
+      <li><a href="https://github.com/nylocyu/winbucket">GitHub</a></li>
+      <li><a class="btn btn-primary btn-small" href="https://github.com/nylocyu/winbucket/releases/latest">Download</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap-wide hero-grid">
+      <div>
+        <!--
+          Headline candidates:
+          1. Your best work, still on file in March.
+          2. Collect the proof while it's still fresh.
+          3. A bucket for the wins you'll forget.
+        -->
+        <h1>Your best work, still on file in March.</h1>
+        <p class="lede">A macOS menu bar app that collects praise, screenshots and finished projects all year — and hands you one document when it's time to ask for a raise. Everything stays on your Mac.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="https://github.com/nylocyu/winbucket/releases/latest">Download for macOS</a>
+          <a class="btn btn-secondary" href="https://github.com/nylocyu/winbucket">View on GitHub</a>
+        </div>
+        <p class="micro">Free · Open source · macOS 26+ · Apple silicon</p>
+      </div>
+      <div>
+        <!-- Replace this mock with a real screenshot: <img src="assets/popover.png" alt="Win Bucket popover in the macOS menu bar"> -->
+        <div class="popover-mock" role="img" aria-label="Illustration of the Win Bucket menu bar popover, showing a drop zone, a note field, and a list of saved wins">
+          <div class="pm-titlebar">
+            <span class="pm-title">
+              <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M9 10a7 5 0 0 1 14 0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M6 10h20l-2.2 16.2A2 2 0 0 1 21.8 28H10.2a2 2 0 0 1-2-1.8Z" fill="currentColor"/></svg>
+              Win Bucket
+            </span>
+            <span class="pm-export">Export</span>
+          </div>
+          <div class="pm-drop">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke-linecap="round"/></svg>
+            Drop a file or screenshot
+          </div>
+          <div class="pm-note">Add a note…</div>
+          <div class="pm-cards">
+            <div class="pm-card">
+              <div class="pm-date">Feb 12</div>
+              <div class="pm-text">Praise from Sarah on the onboarding redesign.</div>
+              <div class="pm-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 7V5a2 2 0 0 1 2-2h4l4 4v10a2 2 0 0 1-2 2h-2"/></svg>slack-message.png</div>
+            </div>
+            <div class="pm-card">
+              <div class="pm-date">Apr 3</div>
+              <div class="pm-text">Shipped the Q1 migration a week early.</div>
+              <div class="pm-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 7V5a2 2 0 0 1 2-2h4l4 4v10a2 2 0 0 1-2 2h-2"/></svg>release-notes.pdf</div>
+            </div>
+            <div class="pm-card">
+              <div class="pm-date">Jun 21</div>
+              <div class="pm-text">Client renewal call — mentioned by name.</div>
+              <div class="pm-file"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M8 7V5a2 2 0 0 1 2-2h4l4 4v10a2 2 0 0 1-2 2h-2"/></svg>call-summary.txt</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="problem reveal">
+    <div class="wrap">
+      <h2>Reviews are annual. Memory isn't.</h2>
+      <p>The compliment a colleague left in Slack in February is gone by March — buried, or the channel's archived. The project you shipped in Q1 blurs into the one from Q3. By review time you remember the last six weeks and call it your year.</p>
+    </div>
+  </section>
+
+  <section class="how reveal">
+    <div class="wrap-wide">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li class="step">
+          <span class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4v11m0 0-4-4m4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 17v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" stroke-linecap="round"/></svg>
+          </span>
+          <h3>1. Drop it in</h3>
+          <p>Drag a screenshot, file or email onto the menu bar icon. Two seconds, no form.</p>
+        </li>
+        <li class="step">
+          <span class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 17 1-4 10-10 3 3-10 10-4 1Z" stroke-linejoin="round"/><path d="m17 6 1-1 3 3-1 1" stroke-linejoin="round"/></svg>
+          </span>
+          <h3>2. Add a line</h3>
+          <p>One note on what it was and why it mattered. The on-device AI can turn a bullet point into a full sentence.</p>
+        </li>
+        <li class="step">
+          <span class="step-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0-3.5 3.5M12 4l3.5 3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke-linecap="round"/></svg>
+          </span>
+          <h3>3. Export when it counts</h3>
+          <p>One click gives you a Markdown file and every attachment, ready to bring to the review.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="features reveal" id="features">
+    <div class="wrap-wide">
+      <h2>Features</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>Menu bar drop target</h3>
+          <p>Drop a file straight onto the icon and it's saved instantly. Hover while dragging to open the popover instead.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Note, link and attachment</h3>
+          <p>A free-text note, an optional link, and any file, screenshot or folder — copied into your bucket with its original filename.</p>
+        </div>
+        <div class="feature-card">
+          <h3>On-device AI rewrite</h3>
+          <p>A sparkle button turns terse bullet points into full sentences, using Apple's on-device model. It only rephrases what you wrote — no invented facts, numbers or names.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Markdown export</h3>
+          <p>One button produces a ZIP: a chronological WinBucket.md plus every attachment in an Anhänge folder.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Your folder, your files</h3>
+          <p>Wins live in a folder you choose, as a plain wins.json and an Attachments folder. Move it into iCloud Drive or Dropbox for your own sync.</p>
+        </div>
+        <div class="feature-card">
+          <h3>30-day trash</h3>
+          <p>Delete a win by mistake and recover it within 30 days. After that it's purged automatically.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="privacy reveal" id="privacy">
+    <div class="wrap">
+      <h2>Privacy</h2>
+      <ul>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z"/></svg>
+          <p>No account, no server, no sync — the app contains no networking code.</p>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5"/></svg>
+          <p>Your wins live in a folder you choose, as wins.json plus an Attachments folder. Plain files you can read, back up, or delete.</p>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/><circle cx="12" cy="12" r="3"/></svg>
+          <p>The AI rewrite runs on your Mac via Apple's on-device model. Your notes never leave the machine.</p>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5 12 12l4-4M9 15h4" stroke-linecap="round"/></svg>
+          <p>No analytics, no crash reporting, no telemetry.</p>
+        </li>
+        <li>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 7-5 5 5 5M15 7l5 5-5 5"/></svg>
+          <p>Open source — <a href="https://github.com/nylocyu/winbucket">read the code yourself</a>.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="requirements reveal">
+    <div class="wrap">
+      <h2>Requirements &amp; install</h2>
+      <ul>
+        <li>macOS 26 or later. Apple silicon.</li>
+        <li>The AI rewrite requires Apple Intelligence to be available. Everything else works without it.</li>
+      </ul>
+      <p class="note">Win Bucket is signed but not notarized yet. On first launch macOS will warn you: right-click the app → <strong>Open</strong> → <strong>Open</strong> again. You only do this once.</p>
+      <p>Prefer to build it yourself:</p>
+      <pre><code>git clone https://github.com/nylocyu/winbucket
+cd winbucket
+./Scripts/build_app.sh && open WinBucket.app</code></pre>
+    </div>
+  </section>
+
+  <section class="faq reveal">
+    <div class="wrap">
+      <h2>FAQ</h2>
+      <details>
+        <summary>Is it free?</summary>
+        <p>Yes, free and open source.</p>
+      </details>
+      <details>
+        <summary>Where is my data stored?</summary>
+        <p>In a folder you pick on first launch. Change it anytime by right-clicking the menu bar icon.</p>
+      </details>
+      <details>
+        <summary>Can I sync between Macs?</summary>
+        <p>Not built in — but point your bucket folder at iCloud Drive or Dropbox and it syncs itself.</p>
+      </details>
+      <details>
+        <summary>Does the AI make things up?</summary>
+        <p>No. It's instructed to rephrase only what you wrote — no added facts, numbers or names — and it runs entirely on your Mac.</p>
+      </details>
+      <details>
+        <summary>Windows or iPhone version?</summary>
+        <p>No. It's a native Mac app.</p>
+      </details>
+    </div>
+  </section>
+
+  <section class="final-cta reveal">
+    <div class="wrap">
+      <a class="btn btn-primary" href="https://github.com/nylocyu/winbucket/releases/latest">Download for macOS</a>
+      <p>Next review is closer than you think.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Built by Colin</span>
+    <span><a href="https://github.com/nylocyu/winbucket">GitHub</a> · <span id="year">2026</span></span>
+  </div>
+</footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches && 'IntersectionObserver' in window) {
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+}
+</script>
+
+</body>
+</html>
