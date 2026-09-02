@@ -1,27 +1,27 @@
 # Win Bucket
 
-Native macOS Menüleisten-App (SwiftUI + AppKit), um berufliche Erfolge ("Wins") während des Jahres zu sammeln — als Nachweis für Gehaltsverhandlungen.
+Native macOS menu bar app (SwiftUI + AppKit) for collecting professional wins throughout the year — as evidence for salary negotiations.
 
-## Nutzung
+## Usage
 
 ```bash
 swift run
 ```
 
-Für den Login-Item-Schalter (braucht ein echtes `.app`-Bundle):
+For the login-item toggle (needs a real `.app` bundle):
 
 ```bash
 ./Scripts/build_app.sh && open WinBucket.app
 ```
 
-## Funktionen
+## Features
 
-- Menüleisten-Icon mit Popover: Dropzone für Dateien/Screenshots, Notizfeld, Link-Feld, Timeline aller Wins
-- Hover-to-Open beim Draggen einer Datei aufs Icon
-- Notiz mit lokaler Apple-KI (Foundation Models) von Stichpunkten zu Fließtext umformulieren, ohne erfundene Fakten
-- Papierkorb mit Wiederherstellung (30 Tage Aufbewahrung)
-- Export aller Wins als ZIP (Markdown + Anhänge)
-- Wählbarer Speicherort, per Rechtsklick-Menü änderbar
-- Rechtsklick-Menü: Ordner öffnen, Speicherort ändern, Login-Item, Beenden
+- Menu bar icon with popover: drop zone for files/screenshots, note field, link field, timeline of all wins
+- Hover-to-open when dragging a file onto the icon
+- Rewrite a note from bullet points into full sentences with local Apple AI (Foundation Models), without inventing facts
+- Trash with restore (30-day retention)
+- Export all wins as a ZIP (Markdown + attachments)
+- Choosable storage location, changeable via right-click menu
+- Right-click menu: open folder, change location, login item, quit
 
-Alle Daten bleiben lokal (kein Cloud-Sync).
+All data stays local (no cloud sync).

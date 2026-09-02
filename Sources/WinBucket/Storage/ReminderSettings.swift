@@ -1,9 +1,9 @@
 import Foundation
 
-// Standardmäßig deaktivierte, wöchentliche Erinnerung. Weekday folgt der
-// Calendar-Konvention (1 = Sonntag ... 7 = Samstag). 0 als UserDefaults-
-// Leerwert kollidiert nicht, da weder ein gültiger Wochentag (1-7) noch eine
-// der angebotenen Uhrzeiten (8-18) je 0 ist.
+// Weekly reminder, disabled by default. Weekday follows the Calendar
+// convention (1 = Sunday ... 7 = Saturday). 0 as the UserDefaults empty
+// value never collides, since neither a valid weekday (1-7) nor any of the
+// offered hours (8-18) is ever 0.
 @MainActor
 enum ReminderSettings {
     private static let enabledKey = "WinBucketReminderEnabled"

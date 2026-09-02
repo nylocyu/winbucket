@@ -16,7 +16,7 @@ enum BucketExporter {
         }()
 
         let tempDir = fm.temporaryDirectory.appendingPathComponent("WinBucket-Export-\(dateStamp)", isDirectory: true)
-        let attachmentsExportDir = tempDir.appendingPathComponent("Anhänge", isDirectory: true)
+        let attachmentsExportDir = tempDir.appendingPathComponent("Attachments", isDirectory: true)
         try? fm.removeItem(at: tempDir)
         try fm.createDirectory(at: attachmentsExportDir, withIntermediateDirectories: true)
 
@@ -35,7 +35,7 @@ enum BucketExporter {
             if let sourceURL = store.attachmentURL(for: win), let originalName = win.originalFilename {
                 let uniqueName = uniqueFilename(originalName, used: &usedNames)
                 try? fm.copyItem(at: sourceURL, to: attachmentsExportDir.appendingPathComponent(uniqueName))
-                lines.append("*Anhang: [\(originalName)](Anhänge/\(uniqueName))*")
+                lines.append("*Attachment: [\(originalName)](Attachments/\(uniqueName))*")
             }
             if let link = win.link {
                 lines.append("*Link: [\(link)](\(link))*")

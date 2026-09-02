@@ -19,9 +19,9 @@ enum BucketLocation {
 
     private static func promptForLocation() -> URL {
         let panel = NSOpenPanel()
-        panel.title = "Win Bucket Speicherort"
-        panel.message = "Wähle einen Ordner, in dem \"Win Bucket\" angelegt wird."
-        panel.prompt = "Auswählen"
+        panel.title = "Win Bucket Location"
+        panel.message = "Choose a folder where \"Win Bucket\" will be created."
+        panel.prompt = "Choose"
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.canCreateDirectories = true
