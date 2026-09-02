@@ -1,8 +1,8 @@
 import UserNotifications
 
-// ponytail: Notification-Berechtigung/-Zustellung funktioniert nur aus einem
-// gebauten, signierten .app-Bundle zuverlässig (Scripts/build_app.sh), nicht
-// über `swift run` — analog zu LaunchAtLogin.swift.
+// ponytail: notification permission/delivery only works reliably from a
+// built, signed .app bundle (Scripts/build_app.sh), not via `swift run` —
+// same as LaunchAtLogin.swift.
 @MainActor
 final class ReminderScheduler: NSObject, @MainActor UNUserNotificationCenterDelegate {
     private static let identifier = "win-bucket-weekly-reminder"
@@ -29,7 +29,7 @@ final class ReminderScheduler: NSObject, @MainActor UNUserNotificationCenterDele
 
         let content = UNMutableNotificationContent()
         content.title = "Win Bucket"
-        content.body = "Diese Woche schon einen Win eingetragen? 🎉"
+        content.body = "Added a win this week yet? 🎉"
         content.sound = .default
 
         var components = DateComponents()

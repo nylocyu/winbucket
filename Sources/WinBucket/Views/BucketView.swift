@@ -6,11 +6,11 @@ struct BucketView: View {
     enum Tab { case active, trash }
 
     enum TimeRange: String, CaseIterable, Identifiable {
-        case all = "Alle"
-        case last7Days = "Letzte 7 Tage"
-        case lastMonth = "Letzter Monat"
-        case lastQuarter = "Letztes Quartal"
-        case thisYear = "Dieses Jahr"
+        case all = "All"
+        case last7Days = "Last 7 Days"
+        case lastMonth = "Last Month"
+        case lastQuarter = "Last Quarter"
+        case thisYear = "This Year"
 
         var id: String { rawValue }
 
@@ -73,19 +73,19 @@ struct BucketView: View {
                     .font(.headline)
                 Spacer()
                 Button(action: toggleTab) {
-                    Text(selectedTab == .active ? "Gelöscht" : "Zurück")
+                    Text(selectedTab == .active ? "Deleted" : "Back")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 .buttonStyle(.plain)
-                Button("Exportieren", action: exportZip)
+                Button("Export", action: exportZip)
                     .disabled(store.wins.isEmpty)
             }
 
             if selectedTab == .active {
                 DropZoneView(pendingFileURL: $pendingFileURL)
 
-                TextField("Notiz: was war's, warum wichtig?", text: $note, axis: .vertical)
+                TextField("Note: what was it, why did it matter?", text: $note, axis: .vertical)
                     .textFieldStyle(.roundedBorder)
                     .lineLimit(2...4)
                     .focused($noteFieldFocused)
@@ -95,7 +95,7 @@ struct BucketView: View {
 
                 HStack {
                     Spacer()
-                    Button("Win speichern") {
+                    Button("Save Win") {
                         addWin()
                     }
                     .keyboardShortcut(.return, modifiers: .command)
@@ -112,7 +112,7 @@ struct BucketView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "magnifyingglass")
                             .foregroundStyle(.secondary)
-                        TextField("Suchen", text: $searchText)
+                        TextField("Search", text: $searchText)
                             .textFieldStyle(.plain)
                     }
                     .padding(.horizontal, 8)
@@ -137,7 +137,7 @@ struct BucketView: View {
                     Button {
                         noteFieldFocused = true
                     } label: {
-                        Text("Noch keine Wins – zieh eine Datei aufs Icon oder klick hier, um manuell einen Eintrag zu erstellen.")
+                        Text("No wins yet – drag a file onto the icon or click here to create an entry manually.")
                             .font(.callout)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -146,7 +146,7 @@ struct BucketView: View {
                     .padding(.horizontal, 12)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else if filteredWins.isEmpty {
-                    Text("Keine Wins gefunden")
+                    Text("No wins found")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -169,7 +169,7 @@ struct BucketView: View {
                 }
             case .trash:
                 if store.trashedWins.isEmpty {
-                    Text("Papierkorb ist leer.")
+                    Text("Trash is empty.")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -201,7 +201,7 @@ struct BucketView: View {
 
     private func trashSubtitle(for win: Win) -> String {
         let days = WinStore.daysRemaining(for: win) ?? 0
-        return days <= 0 ? "Wird in Kürze endgültig gelöscht" : "Wird in \(days) Tag\(days == 1 ? "" : "en") endgültig gelöscht"
+        return days <= 0 ? "Will be permanently deleted soon" : "Will be permanently deleted in \(days) day\(days == 1 ? "" : "s")"
     }
 
     private func improveNote(for win: Win) async {

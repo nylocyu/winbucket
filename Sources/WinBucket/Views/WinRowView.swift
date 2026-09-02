@@ -101,7 +101,7 @@ struct WinRowView: View {
 
     private var editForm: some View {
         VStack(alignment: .leading, spacing: 6) {
-            TextField("Notiz", text: $editedNote, axis: .vertical)
+            TextField("Note", text: $editedNote, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
                 .lineLimit(2...4)
                 .font(.callout)
@@ -110,14 +110,14 @@ struct WinRowView: View {
                 .font(.caption)
             HStack {
                 Spacer()
-                Button("Abbrechen") {
+                Button("Cancel") {
                     isEditing = false
                 }
                 .buttonStyle(.plain)
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-                Button("Speichern") {
+                Button("Save") {
                     onEdit?(editedNote, editedLink)
                     isEditing = false
                 }

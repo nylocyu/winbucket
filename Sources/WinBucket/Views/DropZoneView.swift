@@ -9,7 +9,7 @@ struct DropZoneView: View {
         VStack(spacing: 6) {
             Image(systemName: pendingFileURL == nil ? "tray.and.arrow.down" : "checkmark.circle")
                 .font(.system(size: 22))
-            Text(pendingFileURL?.lastPathComponent ?? "Datei, Screenshot oder Ordner hierher ziehen")
+            Text(pendingFileURL?.lastPathComponent ?? "Drag a file, screenshot or folder here")
                 .font(.caption)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)

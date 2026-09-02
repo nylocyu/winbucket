@@ -10,8 +10,8 @@ final class StatusBarController: NSObject {
     private let reminderScheduler: ReminderScheduler
 
     private static let weekdayOptions: [(value: Int, name: String)] = [
-        (2, "Montag"), (3, "Dienstag"), (4, "Mittwoch"), (5, "Donnerstag"),
-        (6, "Freitag"), (7, "Samstag"), (1, "Sonntag")
+        (2, "Monday"), (3, "Tuesday"), (4, "Wednesday"), (5, "Thursday"),
+        (6, "Friday"), (7, "Saturday"), (1, "Sunday")
     ]
     private static let hourOptions = Array(8...18)
 
@@ -57,17 +57,17 @@ final class StatusBarController: NSObject {
     private func showSettingsMenu(with event: NSEvent) {
         let menu = NSMenu()
 
-        let openItem = NSMenuItem(title: "Ordner öffnen", action: #selector(openFolder), keyEquivalent: "")
+        let openItem = NSMenuItem(title: "Open Folder", action: #selector(openFolder), keyEquivalent: "")
         openItem.target = self
         menu.addItem(openItem)
 
-        let changeItem = NSMenuItem(title: "Speicherort ändern…", action: #selector(changeLocation), keyEquivalent: "")
+        let changeItem = NSMenuItem(title: "Change Location…", action: #selector(changeLocation), keyEquivalent: "")
         changeItem.target = self
         menu.addItem(changeItem)
 
         menu.addItem(.separator())
 
-        let loginItem = NSMenuItem(title: "Beim Login starten", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+        let loginItem = NSMenuItem(title: "Start at Login", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
         loginItem.target = self
         loginItem.state = LaunchAtLogin.isEnabled ? .on : .off
         menu.addItem(loginItem)
@@ -76,7 +76,7 @@ final class StatusBarController: NSObject {
 
         let reminderMenu = NSMenu()
 
-        let enabledItem = NSMenuItem(title: "Aktiviert", action: #selector(toggleReminderEnabled), keyEquivalent: "")
+        let enabledItem = NSMenuItem(title: "Enabled", action: #selector(toggleReminderEnabled), keyEquivalent: "")
         enabledItem.target = self
         enabledItem.state = ReminderSettings.isEnabled ? .on : .off
         reminderMenu.addItem(enabledItem)
@@ -91,35 +91,37 @@ final class StatusBarController: NSObject {
             item.state = ReminderSettings.weekday == option.value ? .on : .off
             weekdaySubmenu.addItem(item)
         }
-        let weekdayItem = NSMenuItem(title: "Wochentag", action: nil, keyEquivalent: "")
+        let weekdayItem = NSMenuItem(title: "Weekday", action: nil, keyEquivalent: "")
         weekdayItem.submenu = weekdaySubmenu
+        weekdayItem.isEnabled = ReminderSettings.isEnabled
         reminderMenu.addItem(weekdayItem)
 
         let hourSubmenu = NSMenu()
         for hour in Self.hourOptions {
-            let item = NSMenuItem(title: "\(hour):00 Uhr", action: #selector(selectHour(_:)), keyEquivalent: "")
+            let item = NSMenuItem(title: "\(hour):00", action: #selector(selectHour(_:)), keyEquivalent: "")
             item.target = self
             item.tag = hour
             item.state = ReminderSettings.hour == hour ? .on : .off
             hourSubmenu.addItem(item)
         }
-        let hourItem = NSMenuItem(title: "Uhrzeit", action: nil, keyEquivalent: "")
+        let hourItem = NSMenuItem(title: "Time", action: nil, keyEquivalent: "")
         hourItem.submenu = hourSubmenu
+        hourItem.isEnabled = ReminderSettings.isEnabled
         reminderMenu.addItem(hourItem)
 
-        let reminderItem = NSMenuItem(title: "Erinnerungen", action: nil, keyEquivalent: "")
+        let reminderItem = NSMenuItem(title: "Reminders", action: nil, keyEquivalent: "")
         reminderItem.submenu = reminderMenu
         menu.addItem(reminderItem)
 
         menu.addItem(.separator())
 
-        let onboardingItem = NSMenuItem(title: "Einführung erneut anzeigen", action: #selector(resetOnboarding), keyEquivalent: "")
+        let onboardingItem = NSMenuItem(title: "Show Onboarding Again", action: #selector(resetOnboarding), keyEquivalent: "")
         onboardingItem.target = self
         menu.addItem(onboardingItem)
 
         menu.addItem(.separator())
 
-        let quitItem = NSMenuItem(title: "Beenden", action: #selector(quit), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
 
@@ -132,9 +134,9 @@ final class StatusBarController: NSObject {
 
     @objc private func changeLocation() {
         let panel = NSOpenPanel()
-        panel.title = "Neuer Speicherort"
-        panel.message = "Wähle einen Ordner, in den \"Win Bucket\" verschoben wird."
-        panel.prompt = "Verschieben"
+        panel.title = "New Location"
+        panel.message = "Choose a folder to move \"Win Bucket\" into."
+        panel.prompt = "Move"
         panel.canChooseDirectories = true
         panel.canChooseFiles = false
         panel.canCreateDirectories = true
@@ -146,8 +148,8 @@ final class StatusBarController: NSObject {
 
         guard !FileManager.default.fileExists(atPath: newRoot.path) else {
             let alert = NSAlert()
-            alert.messageText = "Ordner existiert bereits"
-            alert.informativeText = "In \"\(chosenParent.lastPathComponent)\" gibt es bereits einen \"Win Bucket\"-Ordner. Bitte einen anderen Zielordner wählen."
+            alert.messageText = "Folder Already Exists"
+            alert.informativeText = "There's already a \"Win Bucket\" folder in \"\(chosenParent.lastPathComponent)\". Please choose a different destination folder."
             alert.runModal()
             return
         }
@@ -156,7 +158,7 @@ final class StatusBarController: NSObject {
             try FileManager.default.moveItem(at: oldRoot, to: newRoot)
         } catch {
             let alert = NSAlert()
-            alert.messageText = "Verschieben fehlgeschlagen"
+            alert.messageText = "Move Failed"
             alert.informativeText = error.localizedDescription
             alert.runModal()
             return
@@ -206,8 +208,8 @@ final class StatusBarController: NSObject {
 
     private func showNotificationPermissionDeniedAlert() {
         let alert = NSAlert()
-        alert.messageText = "Benachrichtigungen deaktiviert"
-        alert.informativeText = "Bitte aktiviere Benachrichtigungen für \"Win Bucket\" in den Systemeinstellungen, um Erinnerungen zu erhalten."
+        alert.messageText = "Notifications Disabled"
+        alert.informativeText = "Please enable notifications for \"Win Bucket\" in System Settings to receive reminders."
         alert.runModal()
     }
 

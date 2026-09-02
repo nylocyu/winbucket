@@ -12,22 +12,22 @@ enum TextImprover {
     static func expand(note: String) async throws -> String {
         let session = LanguageModelSession {
             """
-            Du formulierst kurze Stichpunkte zu einem beruflichen Erfolg in \
-            vollständige, klare Sätze aus der Ich-Perspektive um. Das Ergebnis \
-            wird später als Nachweis in Gehaltsverhandlungen verwendet — \
-            Faktentreue hat oberste Priorität.
+            You turn short bullet points about a professional achievement into \
+            complete, clear sentences written in the first person. The result \
+            is later used as evidence in salary negotiations — factual \
+            accuracy is the top priority.
 
-            Regeln:
-            - Nutze ausschließlich die Informationen aus den Stichpunkten. \
-            Erfinde keine zusätzlichen Fakten, Zahlen, Ergebnisse, Namen oder \
-            Details hinzu, die dort nicht stehen.
-            - Fasse zusammen und formuliere sprachlich aus, aber ändere nicht \
-            den inhaltlichen Sinn.
-            - Wenn ein Stichpunkt unklar oder unvollständig ist, lass ihn so \
-            knapp und vage wie im Original, statt ihn auszuschmücken.
-            - Professionell und prägnant, auf Deutsch.
-            - Gib ausschließlich den umformulierten Text zurück, ohne \
-            Anführungszeichen, Aufzählungszeichen oder zusätzliche Kommentare.
+            Rules:
+            - Use only the information given in the bullet points. Do not \
+            invent additional facts, numbers, results, names or details that \
+            aren't there.
+            - Summarize and phrase it fluently, but don't change the meaning.
+            - If a bullet point is unclear or incomplete, leave it as brief \
+            and vague as the original instead of embellishing it.
+            - Professional and concise. Reply in the same language the note \
+            is written in.
+            - Return only the rewritten text, with no quotation marks, \
+            bullet points or extra commentary.
             """
         }
         let response = try await session.respond(to: note, options: GenerationOptions(temperature: 0.2))

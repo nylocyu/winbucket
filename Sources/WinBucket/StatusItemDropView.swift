@@ -17,7 +17,9 @@ final class StatusItemDropView: NSView {
         super.init(frame: frameRect)
         imageView.frame = frameRect.insetBy(dx: 4, dy: 4)
         imageView.autoresizingMask = [.width, .height]
-        imageView.image = NSImage(systemSymbolName: "trophy.fill", accessibilityDescription: "Win Bucket")
+        let icon = BucketIcon.image(pointSize: 18)
+        icon.accessibilityDescription = "Win Bucket"
+        imageView.image = icon
         imageView.imageScaling = .scaleProportionallyUpOrDown
         imageView.contentTintColor = .labelColor
         addSubview(imageView)
